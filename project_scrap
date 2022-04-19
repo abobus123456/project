@@ -1,0 +1,111 @@
+import requests
+from bs4 import BeautifulSoup
+import datetime
+
+month_check = {1: "Декабрь", 2: "Январь", 3: "Ферваль", 4: "Март", 5: "Апрель", 6: "Май", 7: "Июнь", 8: "Июль",
+               9: "Август", 10: "Сентябрь", 11: "Октябрь", 12: "Ноябрь"}
+
+month_check_changed = {1: "Декабря", 2: "Января", 3: "Ферваля", 4: "Марта", 5: "Апреля", 6: "Мая", 7: "Июня", 8: "Июля",
+                       9: "Августа", 10: "Сентября", 11: "Октября", 12: "Ноября"}
+
+
+def dvgups():
+    info = []
+    result = []
+
+    url = 'https://www.dvgups.ru/2015-08-19-05-45-43/konferentsii'
+    responce = requests.get(url)
+    soup = BeautifulSoup(responce.text, 'lxml')
+    conf_test = soup.find_all('tr')
+
+    for index, name in enumerate(conf_test):
+        if 4 <= index <= 21:
+            for i in conf_test[index]:
+                info.append(i.text)
+
+    for i in info:
+        if i != "\n":
+            result.append(i)
+
+    for index, name in enumerate(result):
+        if (len(name) == 1 or len(name) == 2) and "@" in result[index - 1]:
+            str_split = result[3 + index].split(' ')
+            for i in str_split:
+                for k, v in month_check.items():
+                    if i.lower() == v.lower():
+                        print(result[1 + index])
+                        print(result[3 + index])
+    return url
+
+
+def samgups():
+    info = []
+    result1 = []
+    result2 = [1]
+    url = 'https://www.samgups.ru/science/uchenomu/konferentsii-i-granty/'
+    str_update = ''
+    responce = requests.get(url)
+    soup = BeautifulSoup(responce.text, 'lxml')
+    conf_test = soup.find_all('tr')
+
+    for index, name in enumerate(conf_test):
+        if 2 <= index <= 21:
+            for i in conf_test[index]:
+                info.append(i.text)
+
+    for index, string in enumerate(info):
+        str_split = string.split(" ")
+        new_str = ''
+        for i in str_split:
+            if len(i) != 1 and i != '' and i != '\n':
+                new_str += (i + ' ')
+        result1.append(new_str)
+
+    for i in result1:
+        if str(current_year - 1) not in i and i != '':
+            result2.append(i)
+        else:
+            break
+
+    for i in range(len(result2) - 1):
+        if i % 3 != 0:
+            if "," in result2[i]:
+                print(result2[i][:result2[i].find(',')])
+            else:
+                print(result2[i])
+    return url
+
+
+def gumrf():
+    count = 0
+    result_parse1 = []
+
+    url = 'https://gumrf.ru/naudejat/nauchresearch/konferencii'
+    responce = requests.get(url)
+    soup = BeautifulSoup(responce.text, 'lxml')
+    conf_test = soup.find_all('p')
+
+    for index, name in enumerate(conf_test):
+        result_str=''
+        result = []
+        result_parse = ''
+        for i in range(1):
+            result_parse = conf_test[count].text.split(' ')
+
+        for i in result_parse:
+            if i == str(current_year):
+                if "года" in result_parse:
+                    for b in range(4):
+                        result.append(result_parse[b])
+                    result_str=' '.join(result)
+                    print(result_str)
+
+        count += 1
+
+
+current_month = datetime.datetime.now().month
+current_year = datetime.datetime.now().year
+
+# print(dvgups())
+# print(samgups())
+print(gumrf())
